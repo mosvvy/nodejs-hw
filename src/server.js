@@ -42,7 +42,12 @@ app.use(
 );
 
 app.get('/notes', (req, res) => {
-  res.status(200).json([{ id: 1, msg: 'This is 1st note' }]);
+  res
+    .status(200)
+    .json({
+      message: 'All notes retrieved',
+      data: [{ id: 1, msg: 'This is 1st note' }],
+    });
 });
 
 app.get('/notes/:noteId', (req, res) => {

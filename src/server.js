@@ -1,74 +1,36 @@
-/*
-Надано посилання на вихідний код у GitHub у форматі https://github.com/student/nodejs-hw/tree/01-express
-Надано посилання на задеплоєний проєкт на render.com
-Код виконується без помилок
-Використовується змінна PORT через dotenv
-Підключено cors
-Підключено express.json()
-Налаштований логер pino-http
-Додано middleware для 404
-Додано middleware для помилок 500
-Файлова структура відповідає вимогам
-Реалізований маршрут GET /notes
-Реалізований маршрут GET /notes/:noteId
-Реалізований маршрут GET /test-error
- */
-
 import express from 'express';
 import cors from 'cors';
-import pino from 'pino-http';
 import 'dotenv/config';
+
+// Імпорти middleware
+import { logger } from './middleware/logger.js';
+import { notFoundHandler } from './middleware/notFoundHandler.js';
+import { errorHandler } from './middleware/errorHandler.js';
+
+// mongoDB підключення
+import { connectMongoDB } from './db/connectMongoDB.js';
+
+import notesRoutes from './routes/notesRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
 
-app.use(express.json());
-app.use(cors()); // Дозволяє запити з будь-яких джерел
-app.use(
-  pino({
-    level: 'info',
-    transport: {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-        translateTime: 'HH:MM:ss',
-        ignore: 'pid,hostname',
-        messageFormat:
-          '{req.method} {req.url} {res.statusCode} - {responseTime}ms',
-        hideObject: true,
-      },
-    },
-  }),
-);
+// Глобальні middleware
+app.use(logger); // 1. Логер першим — бачить усі запити
+app.use(express.json()); // 2. Парсинг JSON-тіла
+app.use(cors()); // 3. Дозвіл для запитів з інших доменів
 
-app.get('/notes', (req, res) => {
-  res.status(200).json({
-    message: 'Retrieved all notes',
-  });
-});
+// підключаємо групу маршрутів нотаток
+app.use(notesRoutes);
 
-app.get('/notes/:noteId', (req, res) => {
-  const { noteId } = req.params;
-  res.status(200).json({ message: `Retrieved note with ID: ${noteId}` });
-});
+// 404 — якщо маршрут не знайдено
+app.use(notFoundHandler);
 
-app.get('/test-error', (req, res) => {
-  throw new Error('Simulated server error');
-});
+// Error — якщо під час запиту виникла помилка
+app.use(errorHandler);
 
-app.use((req, res) => {
-  res.status(404).json({
-    message: 'Route not found',
-  });
-});
-
-app.use((err, req, res, next) => {
-  console.error(err);
-
-  res.status(500).json({
-    message: err.message,
-  });
-});
+// підключення до MongoDB
+await connectMongoDB();
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

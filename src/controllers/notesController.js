@@ -33,7 +33,7 @@ export const deleteNote = async (req, res, next) => {
     return;
   }
 
-  res.status(200).send();
+  res.status(200).json(deletedNote);
 };
 
 export const updateNote = async (req, res, next) => {

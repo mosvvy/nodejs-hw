@@ -2,7 +2,7 @@ import createHttpError from 'http-errors';
 import { Note } from '../models/note.js';
 
 export const getAllNotes = async (req, res) => {
-  const { tag = 'Todo', search = '', page = 1, perPage = 10 } = req.query;
+  const { tag, search = '', page = 1, perPage = 10 } = req.query;
 
   const skip = (page - 1) * perPage;
 
@@ -10,7 +10,7 @@ export const getAllNotes = async (req, res) => {
 
   if (search) {
     notesQuery.where({
-      $text: { $regex: search, $options: 'i' },
+      $text: { $search: search },
     });
   }
 

@@ -10,7 +10,7 @@ export const getAllNotes = async (req, res) => {
 
   if (search) {
     notesQuery.where({
-      title: { $regex: search, $options: 'i' },
+      $text: { $regex: search, $options: 'i' },
     });
   }
 

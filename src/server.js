@@ -12,6 +12,7 @@ import { connectMongoDB } from './db/connectMongoDB.js';
 
 import notesRoutes from './routes/notesRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import { errors } from 'celebrate';
 import cookieParser from 'cookie-parser';
 
@@ -24,8 +25,9 @@ app.use(express.json()); // 2. Парсинг JSON-тіла
 app.use(cors()); // 3. Дозвіл для запитів з інших доменів
 app.use(cookieParser()); // 4. Парсинг cookie
 
-// підключаємо групу маршрутів нотаток
+// підключаємо групу маршрутів
 app.use(authRoutes);
+app.use(userRoutes);
 app.use(notesRoutes);
 
 // 404 — якщо маршрут не знайдено
